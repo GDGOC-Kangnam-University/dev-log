@@ -1,0 +1,25 @@
+[versions]
+exposed = "1.0.0-rc-1"
+h2 = "2.2.224"
+spring = "3.5.6"
+coroutines = "1.10.2"
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring" }
+
+[libraries]
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+h2 = { module = "com.h2database:h2", version.ref = "h2" }
+
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "spring" }
+
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "coroutines" }
+reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version = "1.9.10" }
+
+[bundles]
+database = ["exposed-core", "exposed-jdbc", "h2"]
+spring = ["spring-boot-starter-web"]
+coroutines = ["coroutines-core", "coroutines-reactor"]
+kotlin = ["reflect"]
