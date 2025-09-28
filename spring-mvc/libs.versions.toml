@@ -1,25 +1,33 @@
 [versions]
 exposed = "1.0.0-rc-1"
-h2 = "2.2.224"
 spring = "3.5.6"
 coroutines = "1.10.2"
-
+kotlin = "2.1.10"
+serialization = "1.9.0"
 [plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 spring-boot = { id = "org.springframework.boot", version.ref = "spring" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [libraries]
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
-exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
-h2 = { module = "com.h2database:h2", version.ref = "h2" }
+exposed-r2dbc = { module = "org.jetbrains.exposed:exposed-r2dbc", version.ref = "exposed" }
+h2 = "io.r2dbc:r2dbc-h2:1.0.0.RELEASE"
 
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "spring" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "spring" }
 
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "coroutines" }
 reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version = "1.9.10" }
 
+serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "serialization" }
+
+
 [bundles]
-database = ["exposed-core", "exposed-jdbc", "h2"]
-spring = ["spring-boot-starter-web"]
+database = ["exposed-core", "exposed-r2dbc", "h2"]
+spring = ["spring-boot-starter-web", "spring-boot-starter-actuator"]
 coroutines = ["coroutines-core", "coroutines-reactor"]
 kotlin = ["reflect"]
+serialization = ["serialization-core", "serialization-json"]
