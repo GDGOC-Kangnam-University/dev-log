@@ -1,0 +1,43 @@
+### JWT 인증 API 테스트
+
+### 1. 회원가입
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "password123"
+}
+
+### 2. 로그인 (리프레시 토큰은 쿠키로 자동 저장됨)
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "password123"
+}
+
+> {%
+  client.global.set("accessToken", response.body.accessToken);
+%}
+
+### 3. 보호된 리소스 접근 (액세스 토큰 사용)
+GET http://localhost:8080/api/users/me
+Authorization: Bearer {{accessToken}}
+
+### 4. 토큰 갱신 (리프레시 토큰 쿠키 자동 전송)
+POST http://localhost:8080/api/auth/refresh
+
+> {%
+  client.global.set("accessToken", response.body.accessToken);
+%}
+
+### 5. 로그아웃
+POST http://localhost:8080/api/auth/logout
+
+### 6. 재사용 탐지 테스트
+# 1) 로그인 후 리프레시 토큰 받기
+# 2) 토큰 갱신 1회 호출 (성공)
+# 3) 같은 토큰으로 재갱신 시도 (실패 - 재사용 감지)
+POST http://localhost:8080/api/auth/refresh
