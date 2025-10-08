@@ -9,13 +9,16 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.not
 import org.jetbrains.exposed.v1.r2dbc.*
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
+import org.springframework.context.annotation.Primary
+import org.springframework.stereotype.Repository
 
+@Primary
+@Repository
 class Persistence {
 	val db = R2dbcDatabase.connect("r2dbc:h2:mem:///test;DB_CLOSE_DELAY=-1")
 	
-	val articleTable = Article.Companion.DatabaseTable
-	val authorTable = Author.Companion.DatabaseTable
-	
+	val articleTable = ArticleTable
+	val authorTable = AuthorTable
 	fun preloadExampleData() = runBlocking {
 		suspendTransaction(db) {
 			SchemaUtils.create(authorTable)
@@ -52,17 +55,31 @@ class Persistence {
 				it[title] = article.title
 				it[author] = userId
 				it[content] = article.content
-			}.insertedCount == 1
+			}[articleTable.id]
 		}
+	
+	suspend fun readSingleArticle(articleId: Int): Article = suspendTransaction(db) {
+		val article =
+			articleTable.selectAll().where { not(articleTable.deleted) }.andWhere { articleTable.id eq articleId }
+				.run { singleOrNull() ?: throw NotFoundError() }
+		Article(
+			id = article[articleTable.id],
+			title = article[articleTable.title],
+			content = article[articleTable.content],
+			author = article[articleTable.author],
+			deleted = article[articleTable.deleted]
+		)
+		
+	}
 	
 	// If articleId is null, lists up all article.
 	// If limit is non-null and articleId isn't, listing will be capped.
-	suspend fun readArticle(articleId: Int? = null, limit: Int? = 5) = suspendTransaction(db) {
+	suspend fun readArticleList(limit: Int? = 5) = suspendTransaction(db) {
 		var articles = articleTable.selectAll().where { not(articleTable.deleted) }
-		if (articleId != null)
-			articles = articles.andWhere { articleTable.id eq articleId }.limit(1)
-		if (articleId == null && limit != null)
-			articles.limit(limit)
+		
+		if (limit != null)
+			articles = articles.limit(limit)
+		
 		articles.mapNotNull {
 			Article(
 				id = it[articleTable.id],
@@ -75,10 +92,9 @@ class Persistence {
 	
 	suspend fun deleteArticle(articleId: Int, userId: Int, userPermission: Permission): ActionResult =
 		suspendTransaction(db) {
-			val ability = checkArticleWritePermission(articleId, userId, userPermission)
-			if (ability != null) return@suspendTransaction ability
+			checkArticleWritePermission(articleId, userId, userPermission)
 			if (articleTable.deleteWhere { articleTable.id eq articleId } == 1) return@suspendTransaction ActionResult.OK
-			else throw Exception() // ?
+			else throw DatabaseOperationError()
 		}
 	
 	suspend fun updateArticle(
@@ -86,8 +102,7 @@ class Persistence {
 	): ActionResult {
 		if (newTitle == null && newContent == null) return ActionResult.OK // yay it can be no-op
 		return suspendTransaction(db) {
-			val ability = checkArticleWritePermission(articleId, userId, userPermission)
-			if (ability != null) return@suspendTransaction ability
+			checkArticleWritePermission(articleId, userId, userPermission)
 			
 			val updateResult = articleTable.update({ articleTable.id eq articleId }) {
 				if (newTitle != null) it[title] = newTitle
@@ -95,7 +110,7 @@ class Persistence {
 			}
 			
 			if (updateResult == 1) return@suspendTransaction ActionResult.OK
-			throw Exception("WHAT???")
+			throw DatabaseOperationError()
 		}
 	}
 	
@@ -109,7 +124,7 @@ class Persistence {
 				.where { authorTable.id eq id }.limit(1)
 				.singleOrNull()
 				?: return@suspendTransaction Permission.NONE
-			if (user[authorTable.pw] != pw) return@suspendTransaction Permission.WRONG_LOGIN
+			if (user[authorTable.pw] != pw) throw ForbiddenError()
 			if (user[authorTable.sudoer]) return@suspendTransaction Permission.SUPER
 			return@suspendTransaction Permission.NORMAL
 		}
@@ -120,12 +135,11 @@ class Persistence {
 		suspendTransaction(db) {
 			val targetArticle = articleTable.select(articleTable.author)
 				.where { (articleTable.id eq articleId) and not(articleTable.deleted) }.limit(1).singleOrNull()
-				?: return@suspendTransaction ActionResult.NOT_EXIST
+				?: throw NotFoundError()
 			
 			val targetArticleAuthor = targetArticle[articleTable.author]
 			
-			if (!((userPermission == Permission.NORMAL && targetArticleAuthor == userId) || userPermission == Permission.SUPER)) return@suspendTransaction ActionResult.LACK_OF_PERMISSION
-			return@suspendTransaction null
+			if (!((userPermission == Permission.NORMAL && targetArticleAuthor == userId) || userPermission == Permission.SUPER)) throw ForbiddenError()
 		}
 }
 
@@ -134,5 +148,5 @@ enum class ActionResult {
 }
 
 enum class Permission {
-	SUPER, NORMAL, WRONG_LOGIN, NONE
+	SUPER, NORMAL, NONE
 }
