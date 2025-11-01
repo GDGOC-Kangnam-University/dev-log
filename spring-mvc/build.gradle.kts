@@ -1,30 +1,28 @@
 plugins {
-	alias(libs.plugins.kotlin)
-	alias(libs.plugins.spring.boot)
-	alias(libs.plugins.serialization)
+    java
+    alias(libs.plugins.spring.boot)
 }
 
 group = "org.example"
 version = "1.0-SNAPSHOT"
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	testImplementation(kotlin("test"))
-	implementation(libs.bundles.database)
-	implementation(libs.bundles.spring) {
-		exclude(group = "org.springframework.boot", module = "spring-boot-starter-json")
-	}
-	implementation(libs.bundles.coroutines)
-	implementation(libs.bundles.serialization)
-	implementation(libs.bundles.kotlin)
+    implementation(libs.bundles.spring)
+    implementation(libs.spring.boot.starter.data.jpa)
+    runtimeOnly(libs.h2.jdbc)
+    testImplementation(libs.spring.boot.starter.test)
 }
 
 tasks.test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
-kotlin {
-	jvmToolchain(21)
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
 }
