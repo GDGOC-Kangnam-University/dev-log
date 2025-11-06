@@ -3,72 +3,34 @@ package org.example;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-@SuppressWarnings("UastIncorrectHttpHeaderInspection")
-@RestController
+@RestController("/")
 @SpringBootApplication
 public class MainApplication {
-
-    private final Persistence db;
-
     @Autowired
     public MainApplication(Persistence db) {
-        this.db = db;
         db.preloadExampleData();
     }
 
-    @GetMapping("/article/{articleId}")
-    public DTOTypes.Article listArticle(@PathVariable int articleId) {
-        return db.readSingleArticle(articleId);
+    /**
+     * Root endpoint saying hi for keepalive checks
+     */
+    @GetMapping
+    public String root() {
+        return "Oh hi";
     }
 
-    @GetMapping("/article")
-    public ResponseEntity<List<DTOTypes.Article>> listAllArticles() {
-        return ResponseEntity.ok(db.readArticleList());
-    }
+    /**
+     * Super secure login endpoint that definitely does not give you up
+     * But it might let you down
+     */
+    @GetMapping("/login")
+    public ResponseEntity login() {
 
-    @PostMapping("/article")
-    public int createArticle(@RequestBody DTOTypes.Article article,
-                             @RequestHeader("userid") int userId,
-                             @RequestHeader("userpass") String userPass) {
-        Permission perm = db.authorize(userId, userPass);
-        if (perm == Permission.NONE) {
-            throw new UnauthorizedError();
-        }
-        return db.createArticle(article, userId);
-    }
-
-    @PatchMapping("/article/{id}")
-    public void updateArticle(@PathVariable int id,
-                              @RequestBody DTOTypes.ArticlePartial article,
-                              @RequestHeader("userid") int userId,
-                              @RequestHeader("userpass") String userPass) {
-        Permission perm = db.authorize(userId, userPass);
-        if (perm == Permission.NONE) {
-            throw new UnauthorizedError();
-        }
-        ActionResult result = db.updateArticle(id, userId, perm, article.title(), article.content());
-        switch (result) {
-            case LACK_OF_PERMISSION -> throw new ForbiddenError();
-            case NOT_EXIST -> throw new NotFoundError();
-        }
-    }
-
-    @DeleteMapping("/article/{id}")
-    public void deleteArticle(@PathVariable int id,
-                              @RequestHeader("userid") int userId,
-                              @RequestHeader("userpass") String userPass) {
-        Permission perm = db.authorize(userId, userPass);
-        if (perm == Permission.NONE) {
-            throw new UnauthorizedError();
-        }
-        ActionResult result = db.deleteArticle(id, userId, perm);
-        switch (result) {
-            case LACK_OF_PERMISSION -> throw new ForbiddenError();
-            case NOT_EXIST -> throw new NotFoundError();
-        }
+        //redirect
+        var url = "https://youtube.com/watch?v=dQw4w9WgXcQ";
+        return ResponseEntity.status(302).header("Location", url).build();
     }
 }
