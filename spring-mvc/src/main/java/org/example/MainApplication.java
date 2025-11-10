@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("/")
 @SpringBootApplication
 public class MainApplication {
+    public static void main(String[] args) {
+        org.springframework.boot.SpringApplication.run(MainApplication.class, args);
+    }
     @Autowired
     public MainApplication(Persistence db) {
         db.preloadExampleData();

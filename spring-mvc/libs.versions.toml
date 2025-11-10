@@ -1,6 +1,7 @@
 [versions]
 spring = "3.2.5"
 h2 = "2.2.224"
+lombok = "1.18.42"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring" }
@@ -14,6 +15,9 @@ spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-star
 
 # Database
 h2-jdbc = { module = "com.h2database:h2", version.ref = "h2" }
+
+# Lombok
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 
 [bundles]
 spring = ["spring-boot-starter-web", "spring-boot-starter-actuator"]
