@@ -1,12 +1,12 @@
 package org.example.controller;
 
 import org.example.ActionResult;
-import org.example.DTOTypes;
 import org.example.Permission;
 import org.example.Persistence;
 import org.example.exception.ForbiddenError;
 import org.example.exception.NotFoundError;
 import org.example.exception.UnauthorizedError;
+import org.example.record.ArticleRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,7 +44,7 @@ class SingleArticleController {
     }
 
     @GetMapping
-    public DTOTypes.Article listArticle(@PathVariable String id) {
+    public ArticleRecord listArticle(@PathVariable String id) {
         return db.readSingleArticle(Integer.parseInt(id));
     }
 

@@ -2,6 +2,7 @@ package org.example;
 
 import jakarta.transaction.Transactional;
 import org.example.exception.NotFoundError;
+import org.example.record.ArticleRecord;
 import org.example.repo.ArticleRepository;
 import org.example.repo.AuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,23 +48,23 @@ public class Persistence {
         articleRepository.save(article2);
     }
 
-    public DTOTypes.Article readSingleArticle(int articleId) {
+    public ArticleRecord readSingleArticle(int articleId) {
         ArticleEntity article = articleRepository.findById(articleId).orElse(null);
         if (article == null || article.isDeleted()) {
             throw new NotFoundError();
         }
-        return new DTOTypes.Article(article.getId(), article.getTitle(), article.getContent(), article.getAuthor(), article.isDeleted());
+        return new ArticleRecord(article.getId(), article.getTitle(), article.getContent(), article.getAuthor(), article.isDeleted());
     }
 
-    public List<DTOTypes.Article> readArticleList() {
+    public List<ArticleRecord> readArticleList() {
         return articleRepository.findAll().stream()
                 .filter(article -> !article.isDeleted())
-                .map(article -> new DTOTypes.Article(article.getId(), article.getTitle(), article.getContent(), article.getAuthor(), article.isDeleted()))
+                .map(article -> new ArticleRecord(article.getId(), article.getTitle(), article.getContent(), article.getAuthor(), article.isDeleted()))
                 .toList();
     }
 
     @Transactional
-    public int createArticle(DTOTypes.Article article, int userId) {
+    public int createArticle(ArticleRecord article, int userId) {
         ArticleEntity newArticle = new ArticleEntity();
         newArticle.setTitle(article.title());
         newArticle.setAuthor(userId);
