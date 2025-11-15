@@ -18,6 +18,7 @@ public class ArticleEntity {
     @Getter
     @Setter
     @Column(length = DTOTypes.TITLE_MAX_LENGTH)
+
     private String title;
 
     @Getter

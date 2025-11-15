@@ -13,7 +13,7 @@ repositories {
 dependencies {
 	implementation(libs.bundles.spring)
 	implementation(libs.spring.boot.starter.data.jpa)
-	runtimeOnly(libs.h2.jdbc)
+	runtimeOnly(libs.database.runtime)
 	@Suppress("VulnerableLibrariesLocal")
 	testImplementation(libs.spring.boot.starter.test)
 	compileOnly(libs.lombok)

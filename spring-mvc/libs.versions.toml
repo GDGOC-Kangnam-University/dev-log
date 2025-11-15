@@ -1,6 +1,6 @@
 [versions]
 spring = "3.2.5"
-h2 = "2.2.224"
+postgresql = "42.7.8"
 lombok = "1.18.42"
 
 [plugins]
@@ -14,7 +14,7 @@ spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring" }
 
 # Database
-h2-jdbc = { module = "com.h2database:h2", version.ref = "h2" }
+database-runtime = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 
 # Lombok
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
