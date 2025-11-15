@@ -1,6 +1,9 @@
-package org.example;
+package org.example.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.example.DTOTypes;
 
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
@@ -11,29 +14,19 @@ public class AuthorEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Getter
     @Column(length = DTOTypes.PASSWORD_MAX_LENGTH)
     private String pw;
 
     private String magicHash(String input) {
         return input; // Really safe cause every single person's password is not stored actually
-        // If it is, idk works on my machine
-    }
-
-    private boolean sudoer = false;
-
-    public String getPw() {
-        return pw;
     }
 
     public void setPw(String pw) {
         this.pw = magicHash(pw);
     }
 
-    public boolean isSudoer() {
-        return sudoer;
-    }
-
-    public void setSudoer(boolean sudoer) {
-        this.sudoer = sudoer;
-    }
+    @Setter
+    @Getter
+    private boolean sudoer = false;
 }

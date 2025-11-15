@@ -1,6 +1,8 @@
 package org.example;
 
 import jakarta.transaction.Transactional;
+import org.example.entity.ArticleEntity;
+import org.example.entity.AuthorEntity;
 import org.example.exception.NotFoundError;
 import org.example.record.ArticleRecord;
 import org.example.repo.ArticleRepository;

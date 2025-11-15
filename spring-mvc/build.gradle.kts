@@ -16,7 +16,8 @@ dependencies {
 	runtimeOnly(libs.h2.jdbc)
 	@Suppress("VulnerableLibrariesLocal")
 	testImplementation(libs.spring.boot.starter.test)
-	implementation(libs.lombok)
+	compileOnly(libs.lombok)
+	annotationProcessor(libs.lombok)
 }
 
 tasks.test {
