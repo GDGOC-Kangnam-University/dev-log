@@ -1,7 +1,6 @@
 plugins {
-	alias(libs.plugins.kotlin)
+	java
 	alias(libs.plugins.spring.boot)
-	alias(libs.plugins.serialization)
 }
 
 group = "org.example"
@@ -12,19 +11,21 @@ repositories {
 }
 
 dependencies {
-	testImplementation(kotlin("test"))
-	implementation(libs.bundles.database)
-	implementation(libs.bundles.spring) {
-		exclude(group = "org.springframework.boot", module = "spring-boot-starter-json")
-	}
-	implementation(libs.bundles.coroutines)
-	implementation(libs.bundles.serialization)
-	implementation(libs.bundles.kotlin)
+	implementation(libs.bundles.spring)
+	implementation(libs.spring.boot.starter.data.jpa)
+	runtimeOnly(libs.database.runtime)
+	@Suppress("VulnerableLibrariesLocal")
+	testImplementation(libs.spring.boot.starter.test)
+	compileOnly(libs.lombok)
+	annotationProcessor(libs.lombok)
 }
 
 tasks.test {
 	useJUnitPlatform()
 }
-kotlin {
-	jvmToolchain(21)
+
+java {
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(21))
+	}
 }
